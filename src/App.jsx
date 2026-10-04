@@ -32,13 +32,30 @@ function SceneFallback() {
 export default function App() {
     const [ready, setReady] = useState(false)
     const [minElapsed, setMinElapsed] = useState(false)
+    const [mounted, setMounted] = useState(false)
+    const [webglOk, setWebglOk] = useState(true)
 
     useEffect(() => {
+        setMounted(true)
+        try {
+            const canvas = document.createElement('canvas')
+            const gl =
+                canvas.getContext('webgl2') ||
+                canvas.getContext('webgl') ||
+                canvas.getContext('experimental-webgl')
+            if (!gl) setWebglOk(false)
+        } catch (e) {
+            setWebglOk(false)
+        }
         const t = setTimeout(() => setMinElapsed(true), 1100)
         return () => clearTimeout(t)
     }, [])
 
     const loading = !(ready && minElapsed)
+
+    if (!mounted || !webglOk) {
+        return <SceneFallback />
+    }
 
     return (
         <>
@@ -47,7 +64,20 @@ export default function App() {
                     <Canvas
                         shadows
                         dpr={[1, 2]}
-                        onCreated={() => setReady(true)}
+                        onCreated={({ gl }) => {
+                            try {
+                                if (!gl || !gl.getContext()) {
+                                    setWebglOk(false)
+                                }
+                            } catch {}
+                            setReady(true)
+                        }}
+                        gl={{
+                            antialias: true,
+                            alpha: true,
+                            powerPreference: 'high-performance',
+                            preserveDrawingBuffer: false,
+                        }}
                         camera={{ position: [0, 1.65, 13], fov: 72, near: 0.05, far: 200 }}
                     >
                         <Experience />
