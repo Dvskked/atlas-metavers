@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useRef } from 'react'
 import { useKeyboard } from '../hooks/useKeyboard'
 import { useStore } from '../store'
 import { COLLIDERS, SPAWN, WALK_BOUND } from '../atlas/world'
